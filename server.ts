@@ -1,9 +1,6 @@
-import express from "express";
-import cors from "cors";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import admin from "firebase-admin";
+async function loadRoutes() {
+  // DESATIVADO
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
