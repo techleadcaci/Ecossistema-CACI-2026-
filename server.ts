@@ -72,7 +72,6 @@ async function loadRoutes() {
   app.use("/api/automation", automationRouter);
   app.use("/api/cms", cmsRouter);
 }
-
 /**
  * 🔥 FRONTEND (SOMENTE BUILD FINAL)
  */
