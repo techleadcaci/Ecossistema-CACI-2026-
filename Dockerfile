@@ -20,4 +20,4 @@ RUN npm install --omit=dev
 ENV PORT=8080
 EXPOSE 8080
 
-CMD ["node", "dist/server.js"]
+CMD ["node", "--loader", "tsx", "server.ts"]
