@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "CommonJS",
+    "module": "ESNext",
+    "moduleResolution": "node",
     "outDir": "dist",
     "rootDir": ".",
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true
   }
+}
 }
     "module": "ESNext",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
