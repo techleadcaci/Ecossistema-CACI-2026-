@@ -31,24 +31,8 @@ app.get("/health", (_req, res) => {
 /**
  * FIREBASE
  */
-try {
-  const configPath = path.join(__dirname, "firebase-applet-config.json");
-
-  if (fs.existsSync(configPath)) {
-    const firebaseConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
-
-    if (!admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.applicationDefault(),
-        projectId: firebaseConfig.projectId,
-      });
-    }
-
-    console.log("[FIREBASE] OK");
-  }
-} catch (err) {
-  console.error("[FIREBASE ERROR]", err);
-}
+// FIREBASE DESATIVADO TEMPORARIAMENTE (CRÍTICO PARA CLOUD RUN SUBIR)
+console.log("[FIREBASE] SKIPPED");
 
 /**
  * 🚨 ROTAS DESATIVADAS (TEMPORÁRIO)
