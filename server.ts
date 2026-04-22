@@ -1,9 +1,9 @@
-import express from "express";
-import cors from "cors";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import admin from "firebase-admin";
+await import("./dist/src/api/auth.js");
+await import("./dist/src/api/governance.js");
+await import("./dist/src/api/metrics.js");
+await import("./dist/src/api/esg.js");
+await import("./dist/src/api/automation.js");
+await import("./dist/src/api/cms.js");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
