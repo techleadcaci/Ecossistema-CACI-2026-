@@ -74,7 +74,11 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  const PORT = process.env.PORT || 8080;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Running on port ${PORT}`);
+});
     console.log(`[CACI SSOT] Servidor iniciado na porta: ${PORT}`);
     console.log(`[GOVERNANÇA] Ambiente: ${process.env.NODE_ENV || 'production'}`);
     console.log(`[STARTUP] SSOT Ativado - Pronto para receber conexões.`);
