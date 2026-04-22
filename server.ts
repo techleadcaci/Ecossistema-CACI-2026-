@@ -99,7 +99,7 @@ async function start() {
   await loadRoutes();
   loadFrontend();
 
-  app.listen(PORT, "0.0.0.0", () => {
+  app.listen(process.env.PORT || 8080, "0.0.0.0"), () => {
     console.log("=================================");
     console.log("🚀 CACI ECOSSISTEMA ONLINE");
     console.log(`PORT: ${PORT}`);
