@@ -1,18 +1,23 @@
-FROM node:20
-
+# BUILD
+FROM node:20 AS build
 WORKDIR /app
 
 COPY package*.json ./
 RUN npm install
 
 COPY . .
+RUN npm run build
 
-# 🔥 COMPILA TYPESCRIPT PARA JS
-RUN npx tsc
+# RUN
+FROM node:20
+WORKDIR /app
 
-# 🔥 CLOUD RUN PORTA
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package*.json ./
+
+RUN npm install --omit=dev
+
 ENV PORT=8080
 EXPOSE 8080
 
-# 🔥 RODA JS (NÃO TS)
 CMD ["node", "dist/server.js"]
