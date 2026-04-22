@@ -1,13 +1,17 @@
 FROM node:20
 
-WORKDIR /app
+import express from "express";
 
-COPY package*.json ./
-RUN npm install
+const app = express();
+const PORT = process.env.PORT || 8080;
 
-COPY . .
+app.get("/health", (req, res) => {
+  res.send("OK");
+});
 
-EXPOSE 8080
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("RUNNING ON " + PORT);
+});
 
-CMD [s/npx", "tsx"/node", "--import", "tsx"/g]
+CMD ["node", "server.js"]
 
