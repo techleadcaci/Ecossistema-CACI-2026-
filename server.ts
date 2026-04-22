@@ -11,20 +11,20 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 /**
- * 🔥 CLOUD RUN: PORTA OBRIGATÓRIA
+ * 🔥 CLOUD RUN PORT (OBRIGATÓRIO)
  */
 const PORT = process.env.PORT || 8080;
 
 /**
- * 🔥 MIDDLEWARES BÁSICOS
+ * 🔥 MIDDLEWARES
  */
 app.use(cors());
 app.use(express.json());
 
 /**
- * 🔥 HEALTH CHECK (OBRIGATÓRIO PARA CLOUD RUN)
+ * 🔥 HEALTH CHECK (OBRIGATÓRIO)
  */
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
   res.status(200).json({
     status: "ok",
     service: "caci-ecossistema",
@@ -33,8 +33,7 @@ app.get("/health", (req, res) => {
 });
 
 /**
- * 🔥 FIREBASE ADMIN SAFE INIT
- * (não quebra se arquivo não existir)
+ * 🔥 FIREBASE ADMIN (SAFE INIT)
  */
 try {
   const configPath = path.join(__dirname, "firebase-applet-config.json");
@@ -49,41 +48,33 @@ try {
       });
     }
 
-    console.log("[FIREBASE] Admin inicializado");
-  } else {
-    console.warn("[FIREBASE] Config não encontrada — rodando sem admin init");
+    console.log("[FIREBASE] OK");
   }
 } catch (err) {
   console.error("[FIREBASE ERROR]", err);
 }
 
 /**
- * 🔥 ROTAS API (IMPORTAÇÃO SEGURA)
+ * 🔥 API ROUTES
  */
 async function loadRoutes() {
-  try {
-    const { authRouter } = await import("./src/api/auth");
-    const { governanceRouter } = await import("./src/api/governance");
-    const { metricsRouter } = await import("./src/api/metrics");
-    const { esgRouter } = await import("./src/api/esg");
-    const { automationRouter } = await import("./src/api/automation");
-    const { cmsRouter } = await import("./src/api/cms");
+  const { authRouter } = await import("./src/api/auth");
+  const { governanceRouter } = await import("./src/api/governance");
+  const { metricsRouter } = await import("./src/api/metrics");
+  const { esgRouter } = await import("./src/api/esg");
+  const { automationRouter } = await import("./src/api/automation");
+  const { cmsRouter } = await import("./src/api/cms");
 
-    app.use("/api/auth", authRouter);
-    app.use("/api/governance", governanceRouter);
-    app.use("/api/metrics", metricsRouter);
-    app.use("/api/esg", esgRouter);
-    app.use("/api/automation", automationRouter);
-    app.use("/api/cms", cmsRouter);
-
-    console.log("[ROUTES] carregadas com sucesso");
-  } catch (err) {
-    console.error("[ROUTES ERROR]", err);
-  }
+  app.use("/api/auth", authRouter);
+  app.use("/api/governance", governanceRouter);
+  app.use("/api/metrics", metricsRouter);
+  app.use("/api/esg", esgRouter);
+  app.use("/api/automation", automationRouter);
+  app.use("/api/cms", cmsRouter);
 }
 
 /**
- * 🔥 FRONTEND (VITE / PROD BUILD)
+ * 🔥 FRONTEND (SOMENTE BUILD FINAL)
  */
 function loadFrontend() {
   const distPath = path.join(process.cwd(), "dist");
@@ -102,22 +93,19 @@ function loadFrontend() {
 }
 
 /**
- * 🔥 STARTUP SEQUENCIAL (CRÍTICO PARA CLOUD RUN)
+ * 🔥 STARTUP (CRÍTICO)
  */
 async function start() {
   await loadRoutes();
   loadFrontend();
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log("=====================================");
+    console.log("=================================");
     console.log("🚀 CACI ECOSSISTEMA ONLINE");
-    console.log(`🌐 PORT: ${PORT}`);
-    console.log(`⚙️ ENV: ${process.env.NODE_ENV || "production"}`);
-    console.log("=====================================");
+    console.log(`PORT: ${PORT}`);
+    console.log(`ENV: ${process.env.NODE_ENV || "production"}`);
+    console.log("=================================");
   });
 }
 
-/**
- * 🔥 ENTRYPOINT
- */
 start();
