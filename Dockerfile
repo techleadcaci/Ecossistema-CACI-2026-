@@ -7,6 +7,12 @@ RUN npm install
 
 COPY . .
 
+# 🔥 COMPILA TYPESCRIPT PARA JS
+RUN npx tsc
+
+# 🔥 CLOUD RUN PORTA
+ENV PORT=8080
 EXPOSE 8080
 
-CMD ["npx", "tsx", "server.ts"]
+# 🔥 RODA JS (NÃO TS)
+CMD ["node", "dist/server.js"]
