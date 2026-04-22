@@ -9,4 +9,5 @@ COPY . .
 
 EXPOSE 8080
 
-CMD ["node", "--import", "tsx", "server.ts"]
+CMD [s/npx", "tsx"/node", "--import", "tsx"/g]
+
