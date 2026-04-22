@@ -9,7 +9,7 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Initialize Firebase Admin
+// Firebase Admin Init
 const configPath = path.join(__dirname, 'firebase-applet-config.json');
 const firebaseConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
@@ -24,23 +24,28 @@ const db = admin.firestore();
 
 async function startServer() {
   const app = express();
-  const PORT = parseInt(process.env.PORT || '3000', 10);
+
+  // 🔥 IMPORTANTE: Cloud Run SEMPRE usa process.env.PORT
+  const PORT = process.env.PORT || 8080;
 
   app.use(cors());
   app.use(express.json());
 
-  // Root Health Check (critical for Cloud Run)
+  // Health check obrigatório
   app.get('/health', (req, res) => {
-    res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+    });
   });
 
-  // Language Middleware
+  // Middleware idioma
   app.use((req, res, next) => {
     res.setHeader('Content-Language', 'pt-BR');
     next();
   });
 
-  // modular API routes
+  // Rotas modulares
   const { authRouter } = await import('./src/api/auth');
   const { governanceRouter } = await import('./src/api/governance');
   const { metricsRouter } = await import('./src/api/metrics');
@@ -55,7 +60,7 @@ async function startServer() {
   app.use('/api/automation', automationRouter);
   app.use('/api/cms', cmsRouter);
 
-  // Vite middleware for development
+  // Dev / Prod
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -65,8 +70,8 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
+
     app.get('*', (req, res) => {
-      // Check if it's an API route first (should have been caught by earlier middleware)
       if (req.path.startsWith('/api/')) {
         return res.status(404).json({ error: 'API route not found' });
       }
@@ -74,12 +79,13 @@ async function startServer() {
     });
   }
 
-  const PORT = process.env.PORT || 8080;
+  // 🔥 UMA ÚNICA DEFINIÇÃO DE LISTEN
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[CACI SSOT] Rodando na porta ${PORT}`);
+    console.log(`[ENV] ${process.env.NODE_ENV || 'production'}`);
+    console.log(`[START] Cloud Run OK`);
+  });
+}
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`[CACI SSOT] Servidor iniciado na porta: ${PORT}`);
-  console.log(`[GOVERNANÇA] Ambiente: ${process.env.NODE_ENV || 'production'}`);
-  console.log(`[STARTUP] SSOT Ativado - Pronto para receber conexões.`);
-});
-
+// 🔥 ENTRYPOINT ÚNICO
 startServer();
