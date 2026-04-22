@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat", sans-serif;
+  
+  /* CACI Institutional Palette */
+  --color-brand-blue: #1565C0;
+  --color-brand-blue-dark: #0D47A1;
+  --color-brand-blue-light: #1E88E5;
+  --color-brand-emerald: #2E7D32;
+  --color-brand-emerald-dark: #1B5E20;
+  --color-brand-emerald-light: #43A047;
+  --color-brand-gold: #FFB300;
+  --color-brand-gold-dark: #FFA000;
+  --color-brand-gold-light: #FFC107;
+  
+  /* Departmental Colors */
+  --color-caci-exec: #1565C0;
+  --color-caci-gov: #424242;
+  --color-caci-fin: #1B5E20;
+  --color-caci-rh: #FFB300;
+  --color-caci-vol: #FFC107;
+  --color-caci-est: #64B5F6;
+  --color-caci-proj: #4CAF50;
+  --color-caci-edu: #0277BD;
+  --color-caci-ass: #E57373;
+  --color-caci-def: #6A1B9A;
+  --color-caci-esg: #2E7D32;
+  --color-caci-cap: #558B2F;
+  --color-caci-mkt: #0097A7;
+  --color-caci-ti: #546E7A;
+  --color-caci-ouv: #90A4AE;
+  --color-caci-esp: #FB8C00;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased selection:bg-brand-blue selection:text-white;
+  }
+}
+
+@layer components {
+  .container-custom {
+    @apply max-w-7xl mx-auto px-6 lg:px-8;
+  }
+  
+  .heading-xl {
+    @apply text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[0.95];
+  }
+
+  .heading-lg {
+    @apply text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight;
+  }
+  
+  .heading-md {
+    @apply text-2xl sm:text-3xl font-bold tracking-tight text-slate-900;
+  }
+  
+  .heading-sm {
+    @apply text-lg font-bold text-slate-900;
+  }
+
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+
+  .bg-sequential-0 {
+    background-color: rgba(46, 125, 50, 0.15); /* Verde institucional esmaecido */
+  }
+  .bg-sequential-1 {
+    background-color: rgba(106, 27, 154, 0.15); /* Roxo institucional esmaecido */
+  }
+  .bg-sequential-2 {
+    background-color: rgba(255, 179, 0, 0.15); /* Amarelo institucional esmaecido */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  .bg-sequential-0, .bg-sequential-1, .bg-sequential-2 {
+    background-color: white !important;
+  }
+  
+  .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl {
+    box-shadow: none !important;
+  }
+  
+  .border {
+    border-color: #e2e8f0 !important;
+  }
+  
+  button {
+    display: none !important;
+  }
+}

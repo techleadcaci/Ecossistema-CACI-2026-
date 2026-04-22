@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Ecossistema CACI — Desenvolvimento de OSCs",
+  "description": "Plataforma institucional para diagnóstico, fortalecimento e rede de colaboração do terceiro setor. Inclui sistema de autenticação robusto, controle de acesso baseado em funções (RBAC) e auditoria de segurança.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}

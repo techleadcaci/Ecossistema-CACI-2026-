@@ -1,0 +1,197 @@
+{
+  "entities": {
+    "User": {
+      "title": "Usuário Institucional",
+      "description": "Identidade unificada do Ecossistema CACI",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "ID único do Firebase Auth" },
+        "id_ccgu": { "type": "string", "description": "Identificador CCGU" },
+        "id_cfrh": { "type": "string", "description": "Identificador CFRH" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "cpf": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin", "superadmin", "diretoria", "governanca", "projetos", "rh"] },
+        "status": { "type": "string", "enum": ["Ativo", "Inativo", "cadastro_finalizado"] },
+        "user_type": { "type": "string", "enum": ["interno", "institucional", "osc", "organizacao"] },
+        "area": { "type": "string" },
+        "department": { "type": "string" },
+        "bank_of_hours": { "type": "number" },
+        "last_active": { "type": "string", "format": "date-time" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "email"]
+    },
+    "Organization": {
+      "title": "Organização Social (OSC)",
+      "description": "Dados de OSCs no ecossistema",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "cnpj": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "year_founded": { "type": "number" },
+        "main_area": { "type": "string" },
+        "beneficiarios": { "type": "number" },
+        "colaboradores": { "type": "number" },
+        "captacao_ativa": { "type": "boolean" },
+        "challenges": { "type": "string" },
+        "owner_user_id": { "type": "string" },
+        "status_ipea": { "type": "string" },
+        "status": { "type": "string" },
+        "maturity_level": { "type": "string" },
+        "overall_score": { "type": "number" },
+        "maturity_seal": { "type": "string" },
+        "reliability_score": { "type": "number" },
+        "tipo_organizacao": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "AuditLog": {
+      "title": "Log de Auditoria",
+      "description": "Rastro de governança institucional e segurança",
+      "type": "object",
+      "properties": {
+        "user_id": { "type": "string" },
+        "id_ccgu": { "type": "string" },
+        "id_cfrh": { "type": "string" },
+        "user_email": { "type": "string" },
+        "action": { "type": "string" },
+        "details": { "type": "object" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "ip_address": { "type": "string" }
+      }
+    },
+    "Diagnostic": {
+      "title": "Diagnóstico Institucional",
+      "description": "Resultado do motor de diagnóstico IMI",
+      "type": "object",
+      "properties": {
+        "organization_id": { "type": "string" },
+        "user_id": { "type": "string" },
+        "overall_score": { "type": "number" },
+        "maturity_level": { "type": "string" },
+        "maturity_seal": { "type": "string" },
+        "reliability_score": { "type": "number" },
+        "summary": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Campaign": {
+      "title": "Campanha Apoia Brasil",
+      "description": "Campanhas de financiamento coletivo",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "goal": { "type": "number" },
+        "raised": { "type": "number" },
+        "status": { "type": "string" },
+        "created_by": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Evaluation": {
+      "title": "Avaliação da Plataforma",
+      "description": "Feedback dos usuários",
+      "type": "object",
+      "properties": {
+        "performance": { "type": "number" },
+        "visual": { "type": "number" },
+        "navigation": { "type": "number" },
+        "access": { "type": "number" },
+        "information": { "type": "number" },
+        "comment": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "userId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Perfis de usuários com governança ativa"
+    },
+    "/organizations/{orgId}": {
+      "schema": "Organization",
+      "description": "Base de dados de OSCs"
+    },
+    "/diagnostics/{diagId}": {
+      "schema": "Diagnostic",
+      "description": "Resultados de diagnósticos institucionais"
+    },
+    "/audit_logs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Logs de auditoria e segurança"
+    },
+    "/apoia_campaigns/{campId}": {
+      "schema": "Campaign",
+      "description": "Campanhas de captação de recursos"
+    },
+    "/platform_evaluations/{evalId}": {
+      "schema": "Evaluation",
+      "description": "Feedbacks de UX/UI"
+    },
+    "/global_stats/current": {
+      "schema": "object",
+      "description": "Benchmarks agregados do ecossistema"
+    },
+    "/time_logs/{logId}": {
+      "schema": "object",
+      "description": "Logs de sessão e presença"
+    },
+    "/improvement_actions/{actionId}": {
+      "schema": "object",
+      "description": "Painel de melhorias institucionais"
+    },
+    "/leads/{leadId}": {
+      "schema": "object",
+      "description": "Gestão de leads e parceiros"
+    },
+    "/governance_logs/{logId}": {
+      "schema": "object",
+      "description": "Histórico de governança corporativa"
+    },
+    "/cfrh_codes/{codeId}": {
+      "schema": "object",
+      "description": "Repositório de códigos CFRH"
+    },
+    "/ccgu_codes/{codeId}": {
+      "schema": "object",
+      "description": "Repositório de códigos CCGU"
+    },
+    "/institutional_identities/{identId}": {
+      "schema": "object",
+      "description": "Mapeamento de identidades digitais"
+    },
+    "/adesao_ecossistema/{recordId}": {
+      "schema": "object",
+      "description": "Registros de adesão ao protocolo"
+    },
+    "/osc_classification/{recordId}": {
+      "schema": "object",
+      "description": "Classificações IPEA das OSCs"
+    },
+    "/institutional_compliance/{recordId}": {
+      "schema": "object",
+      "description": "Termos de adesão e LGPD"
+    },
+    "/network_profiles/{profileId}": {
+      "schema": "object",
+      "description": "Perfis públicos da rede"
+    },
+    "/interactions/{interId}": {
+      "schema": "object",
+      "description": "Histórico de interações (CRM)"
+    },
+    "/opportunities/{oppId}": {
+      "schema": "object",
+      "description": "Pipeline de oportunidades"
+    },
+    "/revenue/{revId}": {
+      "schema": "object",
+      "description": "Transações e receita da plataforma"
+    }
+  }
+}

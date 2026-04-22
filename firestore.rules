@@ -1,0 +1,203 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // -------------------------------------------------------------------------
+    // 0. Global Safety Net & Catch-all
+    // -------------------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // 1. Primitive Definitions (Helpers)
+    // -------------------------------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function hasRole(role) {
+      return isSignedIn() && getUserData().role == role;
+    }
+
+    function isAdmin() {
+      return hasRole('admin') || hasRole('superadmin') || hasRole('diretoria');
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. Entity Validators
+    // -------------------------------------------------------------------------
+    
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'name', 'email']) &&
+             data.uid is string && data.uid.size() < 128 &&
+             data.name is string && data.name.size() < 256 &&
+             data.email is string && data.email.size() < 256;
+    }
+
+    function isValidOrganization(data) {
+      return data.keys().hasAll(['name', 'cnpj', 'owner_user_id']) &&
+             data.name is string && data.name.size() < 256 &&
+             data.cnpj is string && data.cnpj.size() < 20 &&
+             data.owner_user_id is string;
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. Collection Rules
+    // -------------------------------------------------------------------------
+
+    // USERS
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && isValidUser(incoming()) && 
+                    incoming().role == 'user' &&
+                    incoming().created_at == request.time;
+      allow update: if (isOwner(userId) || isAdmin()) && 
+                    isValidUser(incoming()) &&
+                    (isAdmin() || (
+                      incoming().diff(existing()).affectedKeys().hasOnly(['last_active', 'bank_of_hours', 'name', 'phone', 'area', 'department', 'email']) &&
+                      incoming().uid == existing().uid &&
+                      incoming().email == existing().email &&
+                      incoming().role == existing().role
+                    ));
+    }
+
+    // ORGANIZATIONS
+    match /organizations/{orgId} {
+      allow read: if true;
+      allow create: if isVerified() && isValidOrganization(incoming()) && 
+                    incoming().owner_user_id == request.auth.uid &&
+                    incoming().created_at == request.time;
+      allow update: if (isOwner(existing().owner_user_id) || isAdmin()) && 
+                    isValidOrganization(incoming()) &&
+                    (isAdmin() || (
+                      incoming().diff(existing()).affectedKeys().hasOnly(['name', 'city', 'state', 'main_area', 'beneficiarios', 'colaboradores', 'captacao_ativa', 'challenges', 'status']) &&
+                      incoming().cnpj == existing().cnpj &&
+                      incoming().owner_user_id == existing().owner_user_id
+                    ));
+    }
+
+    // DIAGNOSTICS
+    match /diagnostics/{diagId} {
+      allow get: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow create: if isVerified() && incoming().user_id == request.auth.uid;
+    }
+
+    // AUDIT LOGS
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn(); // Allow logging from client
+    }
+
+    // CAMPAIGNS
+    match /apoia_campaigns/{campId} {
+      allow read: if true;
+      allow create, update: if isAdmin();
+    }
+
+    // EVALUATIONS
+    match /platform_evaluations/{evalId} {
+      allow read: if isAdmin();
+      allow create: if true; // Anyone can evaluate
+    }
+
+    // GLOBAL STATS
+    match /global_stats/current {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // OTHERS (Management/Internal)
+    match /time_logs/{logId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.user_id == request.auth.uid);
+      allow create: if isSignedIn();
+    }
+
+    match /improvement_actions/{actionId} {
+      allow read: if isSignedIn();
+      allow create, update: if isAdmin() || hasRole('governanca') || hasRole('projetos') || hasRole('rh');
+    }
+
+    match /leads/{leadId} {
+      allow read, write: if isAdmin() || hasRole('governanca') || hasRole('projetos');
+    }
+
+    match /governance_logs/{logId} {
+      allow read: if isAdmin() || hasRole('governanca');
+      allow create: if isSignedIn();
+    }
+
+    match /cfrh_codes/{codeId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() || hasRole('rh');
+    }
+
+    match /ccgu_codes/{codeId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() || hasRole('rh');
+    }
+
+    match /institutional_identities/{identId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /adesao_ecossistema/{recordId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isVerified() && incoming().userId == request.auth.uid;
+    }
+
+    match /osc_classification/{recordId} {
+      allow read: if true;
+      allow create: if isVerified();
+    }
+
+    match /institutional_compliance/{recordId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isVerified() && incoming().userId == request.auth.uid;
+    }
+
+    match /network_profiles/{profileId} {
+      allow read: if true;
+      allow create: if isVerified();
+      allow update: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    match /interactions/{interId} {
+      allow read, write: if isAdmin() || hasRole('governanca') || hasRole('projetos');
+    }
+
+    match /opportunities/{oppId} {
+      allow read, write: if isAdmin() || hasRole('governanca') || hasRole('projetos');
+    }
+
+    match /revenue/{revId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
