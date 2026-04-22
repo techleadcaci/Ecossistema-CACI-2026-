@@ -1,23 +1,15 @@
-# BUILD
-FROM node:20 AS build
+FROM node:20
+
 WORKDIR /app
 
 COPY package*.json ./
 RUN npm install
 
 COPY . .
+
 RUN npm run build
-
-# RUN
-FROM node:20
-WORKDIR /app
-
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/package*.json ./
-
-RUN npm install --omit=dev
 
 ENV PORT=8080
 EXPOSE 8080
 
-CMD ["node", "--loader", "tsx", "server.ts"]
+CMD ["npm", "start"]
