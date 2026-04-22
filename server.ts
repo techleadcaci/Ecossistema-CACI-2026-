@@ -1,28 +1,24 @@
-await import("./dist/src/api/auth.js");
-await import("./dist/src/api/governance.js");
-await import("./dist/src/api/metrics.js");
-await import("./dist/src/api/esg.js");
-await import("./dist/src/api/automation.js");
-await import("./dist/src/api/cms.js");
+import express from "express";
+import cors from "cors";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import admin from "firebase-admin";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-
-/**
- * 🔥 CLOUD RUN PORT (OBRIGATÓRIO)
- */
 const PORT = process.env.PORT || 8080;
 
 /**
- * 🔥 MIDDLEWARES
+ * MIDDLEWARES
  */
 app.use(cors());
 app.use(express.json());
 
 /**
- * 🔥 HEALTH CHECK (OBRIGATÓRIO)
+ * HEALTH CHECK
  */
 app.get("/health", (_req, res) => {
   res.status(200).json({
@@ -33,7 +29,7 @@ app.get("/health", (_req, res) => {
 });
 
 /**
- * 🔥 FIREBASE ADMIN (SAFE INIT)
+ * FIREBASE
  */
 try {
   const configPath = path.join(__dirname, "firebase-applet-config.json");
@@ -55,25 +51,14 @@ try {
 }
 
 /**
- * 🔥 API ROUTES
+ * 🚨 ROTAS DESATIVADAS (TEMPORÁRIO)
  */
 async function loadRoutes() {
-  const { authRouter } = await import("./src/api/auth");
-  const { governanceRouter } = await import("./src/api/governance");
-  const { metricsRouter } = await import("./src/api/metrics");
-  const { esgRouter } = await import("./src/api/esg");
-  const { automationRouter } = await import("./src/api/automation");
-  const { cmsRouter } = await import("./src/api/cms");
-
-  app.use("/api/auth", authRouter);
-  app.use("/api/governance", governanceRouter);
-  app.use("/api/metrics", metricsRouter);
-  app.use("/api/esg", esgRouter);
-  app.use("/api/automation", automationRouter);
-  app.use("/api/cms", cmsRouter);
+  // DESATIVADO PARA GARANTIR QUE O SERVIDOR SOBE
 }
+
 /**
- * 🔥 FRONTEND (SOMENTE BUILD FINAL)
+ * FRONTEND
  */
 function loadFrontend() {
   const distPath = path.join(process.cwd(), "dist");
@@ -92,17 +77,16 @@ function loadFrontend() {
 }
 
 /**
- * 🔥 STARTUP (CRÍTICO)
+ * START
  */
 async function start() {
   await loadRoutes();
   loadFrontend();
 
-  app.listen(process.env.PORT || 8080, "0.0.0.0"), () => {
+  app.listen(PORT, "0.0.0.0", () => {
     console.log("=================================");
     console.log("🚀 CACI ECOSSISTEMA ONLINE");
     console.log(`PORT: ${PORT}`);
-    console.log(`ENV: ${process.env.NODE_ENV || "production"}`);
     console.log("=================================");
   });
 }
