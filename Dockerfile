@@ -1,17 +1,29 @@
-FROM node:20
+# Stage 1: Build
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 
-import express from "express";
+# Stage 2: Production Server
+FROM node:20-alpine
+WORKDIR /app
 
-const app = express();
-const PORT = process.env.PORT || 8080;
+# Ensure we have all source code for tsx execution of server.ts
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/server.ts ./
+COPY --from=build /app/src ./src
+COPY --from=build /app/tsconfig.json ./
+COPY --from=build /app/firebase-applet-config.json ./
 
-app.get("/health", (req, res) => {
-  res.send("OK");
-});
+# Install all dependencies (dev and prod) because tsx needs dev deps for TS support
+RUN npm install
+RUN npm install -g tsx
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("RUNNING ON " + PORT);
-});
+ENV NODE_ENV=production
+ENV PORT=3000
+EXPOSE 3000
 
-CMD ["node", "server.js"]
-
+CMD ["npm", "start"]
